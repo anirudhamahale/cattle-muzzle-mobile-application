@@ -38,6 +38,5 @@ yarn-error.*
 
 example
 
-# generated native folders
-/ios
-/android
+# reference documents (large, not source)
+*.pdf
