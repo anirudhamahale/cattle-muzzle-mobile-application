@@ -286,7 +286,7 @@ export default function AddCattle() {
 
       {isDoctor && (
         <Section title="Owner" icon={UserRound}>
-          <OwnerPicker owners={owners} value={form.ownerId} onChange={(ownerId) => set({ ownerId })} error={errors.owner} />
+          <OwnerPicker self={user} owners={owners} value={form.ownerId} onChange={(ownerId) => set({ ownerId })} error={errors.owner} />
         </Section>
       )}
 

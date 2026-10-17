@@ -76,7 +76,7 @@ export async function verifyLogin(
   }
   if (row.role !== role) {
     throw new Error(
-      `This number is registered as ${row.role === 'doctor' ? 'a doctor' : 'an owner'}. Switch the login type.`,
+      `This number is registered as a ${row.role === 'doctor' ? 'Doctor' : 'User'}. Choose "${row.role === 'doctor' ? 'Doctor' : 'User'}" above to log in.`,
     );
   }
   const { password_hash: _h, salt: _s, ...user } = row;

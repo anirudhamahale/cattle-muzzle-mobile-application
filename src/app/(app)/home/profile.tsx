@@ -10,7 +10,7 @@ import { MATCH_THRESHOLD, muzzleEngine } from '@/lib/muzzle';
 
 export default function Profile() {
   const user = useCurrentUser();
-  const { signOut } = useAuth();
+  const { logOut } = useAuth();
   const isDoctor = user.role === 'doctor';
   const RoleIcon = isDoctor ? Stethoscope : user.owner_type === 'gaushala' ? Warehouse : Tractor;
   const roleLabel = isDoctor ? 'Veterinary doctor' : user.owner_type === 'gaushala' ? 'Gaushala' : 'Independent farmer';
@@ -18,7 +18,7 @@ export default function Profile() {
   function confirmSignOut() {
     Alert.alert('Sign out?', 'Your data stays on this device.', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Sign out', style: 'destructive', onPress: signOut },
+      { text: 'Sign out', style: 'destructive', onPress: logOut },
     ]);
   }
 

@@ -3,10 +3,12 @@
 A React Native (Expo SDK 58) app for registering cattle and buffalo by their **muzzle print**, which is as unique to an animal as a fingerprint is to a person.
 
 - **Two account types**
-  - **Cattle owner** (a Gaushala or an independent farmer): registers animals and sees only their own herd.
-  - **Veterinary doctor**: sees every animal, registers animals on behalf of owners, verifies identities, and adds health records.
+  - **User** (a Gaushala or an independent farmer): adds cows and sees only their own herd.
+  - **Doctor** (veterinary): sees every cow, adds cows for any user or for themselves, verifies identities, and adds health records.
 - **Muzzle capture** in three ways: the camera with an alignment guide (the photo is auto-cropped to the guide), a short video (the best frames are extracted automatically), or the gallery (photos and videos).
-- **Tabs**: Home dashboard · All cattle · Register · Profile.
+- **Tabs**: Home · All cattle · Scan · Add cow · Profile.
+- **Scan to identify**: scan a muzzle (camera, video or gallery) or enter an ear tag to see that cow's details. Users only see details for their own cows.
+- **Onboarding**: five introduction slides on first launch.
 - **Offline-first**: data lives in SQLite on the device, and photos are stored under the app's documents directory.
 
 Age bands and use categories follow the DAHD *21st Livestock Census Operational Guidelines* (2024). The form only offers uses that match the animal's sex, and it shows each animal's census age band.
@@ -94,11 +96,14 @@ To run the model on the device instead, implement the `MuzzleEngine` interface i
 ```
 src/
   app/                       Expo Router routes
-    _layout.tsx              fonts, SQLite, auth; guards (auth) vs (app)
-    (auth)/                  role choice, login, register
-    (app)/(tabs)/            Home, All cattle, Register, Profile
+    _layout.tsx              fonts, SQLite, auth provider
+    index.tsx                entry gate: home / onboarding / login
+    onboarding/              5-slide introduction (first launch)
+    auth/                    login (Doctor or User), register
+    (app)/_layout.tsx        logged-in guard
+    (app)/home/              tabs: Home, All cattle, Scan, Add cow, Profile
     (app)/cattle/[id].tsx    cattle profile (photos, video, health records)
-    (app)/capture.tsx        full-screen muzzle camera
+    (app)/capture.tsx        full-screen muzzle camera (register or identify)
     (app)/health-record.tsx  doctor-only health record form
   components/                UI kit (ui/) and feature components
   constants/                 design tokens, census reference data

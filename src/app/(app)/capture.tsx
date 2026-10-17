@@ -22,7 +22,8 @@ const GUIDE_ASPECT = 0.72; // height / width
 type Mode = 'picture' | 'video';
 
 export default function CaptureScreen() {
-  const params = useLocalSearchParams<{ mode?: Mode }>();
+  const params = useLocalSearchParams<{ mode?: Mode; purpose?: 'register' | 'identify' }>();
+  const identify = params.purpose === 'identify';
   const [camPerm, requestCam] = useCameraPermissions();
   const [micPerm, requestMic] = useMicrophonePermissions();
   const { shots } = useCapture();
@@ -74,7 +75,16 @@ export default function CaptureScreen() {
       setFeedback({ ok: true, text: `${good.length} muzzle ${good.length === 1 ? 'shot' : 'shots'} added · ${best}% confidence` });
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
-    captureStore.addShots(newShots.filter(isUsableShot));
+    if (identify) {
+      // Scanning needs one good shot: hand back the best and close.
+      const best = [...good].sort((a, b) => b.detection.confidence - a.detection.confidence)[0];
+      if (best) {
+        captureStore.setIdentifyShot(best);
+        router.back();
+      }
+      return;
+    }
+    captureStore.addShots(good);
   }
 
   async function takePhoto() {
@@ -117,7 +127,7 @@ export default function CaptureScreen() {
       const frames = await processVideo(result.uri, mapping, (done, total) =>
         setBusy(`Analysing frame ${done} of ${total}…`),
       );
-      captureStore.setVideo(result.uri);
+      if (!identify) captureStore.setVideo(result.uri);
       report(frames);
     } catch (e) {
       setFeedback({ ok: false, text: (e as Error).message });
@@ -165,7 +175,7 @@ export default function CaptureScreen() {
           <IconButton icon={X} label="Close camera" onPress={() => router.back()} color={Colors.white} background="rgba(0,0,0,0.45)" />
           <View style={styles.counter}>
             <Text variant="label" color={Colors.white}>
-              {usable}/{RECOMMENDED_SHOTS} muzzle shots
+              {identify ? 'Scan muzzle to identify' : `${usable}/${RECOMMENDED_SHOTS} muzzle shots`}
             </Text>
           </View>
           <IconButton
@@ -216,7 +226,7 @@ export default function CaptureScreen() {
               )}
             </Pressable>
             <View style={styles.side}>
-              {usable > 0 && !recording && (
+              {!identify && usable > 0 && !recording && (
                 <Pressable
                   onPress={() => router.back()}
                   accessibilityRole="button"

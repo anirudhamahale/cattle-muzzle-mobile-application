@@ -7,16 +7,18 @@ import {
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
 import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { SQLiteProvider } from 'expo-sqlite';
+import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
 
 import { Colors } from '@/constants/theme';
 import { DATABASE_NAME, migrateDbIfNeeded } from '@/db/schema';
-import { AuthProvider, useAuth } from '@/lib/auth';
+import { seedDevAccounts } from '@/db/seed';
+import { AuthProvider } from '@/lib/auth';
 
-SplashScreen.preventAutoHideAsync();
+async function initDatabase(db: SQLiteDatabase) {
+  await migrateDbIfNeeded(db);
+  await seedDevAccounts(db);
+}
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -29,32 +31,16 @@ export default function RootLayout() {
   if (!fontsLoaded) return null;
 
   return (
-    <SQLiteProvider databaseName={DATABASE_NAME} onInit={migrateDbIfNeeded}>
+    <SQLiteProvider databaseName={DATABASE_NAME} onInit={initDatabase}>
       <AuthProvider>
         <StatusBar style="dark" />
-        <RootNavigator />
+        <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
+          <Stack.Screen name="index" options={{ animation: 'none' }} />
+          <Stack.Screen name="onboarding" options={{ animation: 'none' }} />
+          <Stack.Screen name="auth" options={{ animation: 'none' }} />
+          <Stack.Screen name="(app)" options={{ animation: 'none' }} />
+        </Stack>
       </AuthProvider>
     </SQLiteProvider>
-  );
-}
-
-function RootNavigator() {
-  const { user, ready } = useAuth();
-
-  useEffect(() => {
-    if (ready) SplashScreen.hideAsync();
-  }, [ready]);
-
-  if (!ready) return null;
-
-  return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: Colors.background } }}>
-      <Stack.Protected guard={!!user}>
-        <Stack.Screen name="(app)" />
-      </Stack.Protected>
-      <Stack.Protected guard={!user}>
-        <Stack.Screen name="(auth)" />
-      </Stack.Protected>
-    </Stack>
   );
 }

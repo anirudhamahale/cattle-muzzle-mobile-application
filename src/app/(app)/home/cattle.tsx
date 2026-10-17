@@ -107,7 +107,7 @@ export default function CattleList() {
               }
               action={
                 !search && filter === 'all' ? (
-                  <Button title="Register cattle" onPress={() => router.navigate('/add')} />
+                  <Button title="Register cattle" onPress={() => router.navigate('/home/add')} />
                 ) : undefined
               }
             />

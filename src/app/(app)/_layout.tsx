@@ -1,8 +1,14 @@
-import { Stack } from 'expo-router';
+import { Redirect, Stack } from 'expo-router';
 
 import { Colors, Fonts } from '@/constants/theme';
+import { useAuth } from '@/lib/auth';
 
 export default function AppLayout() {
+  const { isReady, isLoggedIn } = useAuth();
+
+  if (!isReady) return null;
+  if (!isLoggedIn) return <Redirect href="/auth/login" />;
+
   return (
     <Stack
       screenOptions={{
@@ -13,7 +19,7 @@ export default function AppLayout() {
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: Colors.background },
       }}>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="home" options={{ headerShown: false, animation: 'none' }} />
       <Stack.Screen name="cattle/[id]" options={{ title: 'Cattle profile' }} />
       <Stack.Screen
         name="capture"

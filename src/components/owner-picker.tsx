@@ -10,8 +10,13 @@ import { Text } from './ui/text';
 
 const MAX_VISIBLE = 12;
 
-/** Lets a doctor choose which registered owner an animal belongs to. */
-export function OwnerPicker({ owners, value, onChange, error }: {
+/**
+ * Lets a doctor choose which registered user (gaushala / farmer) an animal belongs
+ * to. "Myself" is always offered so a doctor can add a cow even when its owner
+ * has no account on this device.
+ */
+export function OwnerPicker({ self, owners, value, onChange, error }: {
+  self: User;
   owners: User[];
   value: string | null;
   onChange: (id: string) => void;
@@ -27,19 +32,14 @@ export function OwnerPicker({ owners, value, onChange, error }: {
     const selected = owners.find((o) => o.id === value);
     const list = matches.slice(0, MAX_VISIBLE);
     if (selected && !list.includes(selected)) list.unshift(selected);
-    return list.map((o) => ({
-      value: o.id,
-      label: o.owner_type === 'gaushala' && o.org_name ? o.org_name : o.name,
-    }));
-  }, [owners, query, value]);
-
-  if (owners.length === 0) {
-    return (
-      <Text color={Colors.destructive}>
-        No owner accounts exist yet. Ask the gaushala or farmer to create an account first.
-      </Text>
-    );
-  }
+    return [
+      { value: self.id, label: 'Myself' },
+      ...list.map((o) => ({
+        value: o.id,
+        label: o.owner_type === 'gaushala' && o.org_name ? o.org_name : o.name,
+      })),
+    ];
+  }, [owners, query, value, self.id]);
 
   return (
     <View style={styles.wrap}>
@@ -57,6 +57,11 @@ export function OwnerPicker({ owners, value, onChange, error }: {
         </View>
       )}
       <ChipGroup label="Owner" required options={options} value={value} onChange={onChange} error={error} />
+      {owners.length === 0 && (
+        <Text variant="caption" color={Colors.mutedForeground}>
+          No user accounts on this device yet. Choose Myself, or ask the gaushala / farmer to sign up first.
+        </Text>
+      )}
     </View>
   );
 }

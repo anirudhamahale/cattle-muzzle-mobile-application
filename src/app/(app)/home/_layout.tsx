@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router/js-tabs';
-import { House, List, ScanFace, UserRound } from 'lucide-react-native';
+import { House, List, Plus, ScanSearch, UserRound } from 'lucide-react-native';
 
 import { Colors, Fonts } from '@/constants/theme';
 
@@ -23,8 +23,12 @@ export default function TabsLayout() {
         options={{ title: 'All cattle', tabBarIcon: ({ color, size }) => <List color={color} size={size} /> }}
       />
       <Tabs.Screen
+        name="scan"
+        options={{ title: 'Scan', tabBarIcon: ({ color, size }) => <ScanSearch color={color} size={size} /> }}
+      />
+      <Tabs.Screen
         name="add"
-        options={{ title: 'Register', tabBarIcon: ({ color, size }) => <ScanFace color={color} size={size} /> }}
+        options={{ title: 'Add cow', tabBarIcon: ({ color, size }) => <Plus color={color} size={size} /> }}
       />
       <Tabs.Screen
         name="profile"

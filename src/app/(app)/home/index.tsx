@@ -9,6 +9,7 @@ import {
   Mars,
   Milk,
   ScanFace,
+  ScanSearch,
   Users,
   Venus,
   type LucideIcon,
@@ -80,7 +81,7 @@ export default function Home() {
       )}
 
       <Pressable
-        onPress={() => router.navigate('/add')}
+        onPress={() => router.navigate('/home/add')}
         accessibilityRole="button"
         accessibilityLabel="Register cattle with a muzzle scan"
         style={({ pressed }) => [styles.hero, pressed && { backgroundColor: Colors.primaryPressed }]}>
@@ -88,12 +89,20 @@ export default function Home() {
           <ScanFace size={32} color={Colors.primary} />
         </View>
         <View style={styles.flex}>
-          <Text variant="heading" color={Colors.onPrimary}>Register cattle</Text>
+          <Text variant="heading" color={Colors.onPrimary}>Add a cow</Text>
           <Text variant="caption" color={Colors.primarySoft}>
             Scan the muzzle with the camera, a short video or gallery photos
           </Text>
         </View>
       </Pressable>
+
+      <Button
+        title="Scan a cow to see its details"
+        icon={ScanSearch}
+        variant="outline"
+        size="lg"
+        onPress={() => router.navigate('/home/scan')}
+      />
 
       <Text variant="heading" accessibilityRole="header">
         {isDoctor ? 'All registered cattle' : 'Your herd'}
@@ -134,7 +143,7 @@ export default function Home() {
       </Section>
 
       {stats?.total === 0 && (
-        <Button title="Register your first cattle" icon={ScanFace} variant="secondary" onPress={() => router.navigate('/add')} />
+        <Button title="Register your first cattle" icon={ScanFace} variant="secondary" onPress={() => router.navigate('/home/add')} />
       )}
     </Screen>
   );

@@ -13,8 +13,7 @@ export default function AuthLayout() {
         headerBackButtonDisplayMode: 'minimal',
         contentStyle: { backgroundColor: Colors.background },
       }}>
-      <Stack.Screen name="index" options={{ headerShown: false }} />
-      <Stack.Screen name="login" options={{ title: '' }} />
+      <Stack.Screen name="login" options={{ headerShown: false }} />
       <Stack.Screen name="register" options={{ title: 'Create account' }} />
     </Stack>
   );

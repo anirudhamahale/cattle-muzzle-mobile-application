@@ -223,23 +223,38 @@ export async function setVerified(db: SQLiteDatabase, id: string, doctorId: stri
   );
 }
 
-/** Compares a muzzle embedding against every enrolled animal. */
+/** Compares a muzzle embedding against every enrolled animal (all owners). */
 export async function findMuzzleMatches(db: SQLiteDatabase, embedding: number[], limit = 3) {
-  const rows = await db.getAllAsync<{ id: string; name: string | null; tag_number: string | null; muzzle_embedding: string; owner_name: string }>(
-    `SELECT c.id, c.name, c.tag_number, c.muzzle_embedding, o.name AS owner_name
+  const rows = await db.getAllAsync<{
+    id: string;
+    owner_id: string;
+    name: string | null;
+    tag_number: string | null;
+    muzzle_embedding: string;
+    owner_name: string;
+  }>(
+    `SELECT c.id, c.owner_id, c.name, c.tag_number, c.muzzle_embedding, o.name AS owner_name
      FROM cattle c JOIN users o ON o.id = c.owner_id WHERE c.muzzle_embedding IS NOT NULL`,
   );
   return rows
-    .map((r) => ({
-      id: r.id,
-      name: r.name,
-      tag_number: r.tag_number,
-      owner_name: r.owner_name,
-      score: cosineSimilarity(embedding, JSON.parse(r.muzzle_embedding) as number[]),
+    .map(({ muzzle_embedding, ...r }) => ({
+      ...r,
+      score: cosineSimilarity(embedding, JSON.parse(muzzle_embedding) as number[]),
     }))
     .filter((m) => m.score >= MATCH_THRESHOLD)
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
+}
+
+export type MuzzleMatch = Awaited<ReturnType<typeof findMuzzleMatches>>[number];
+
+/** Whether this user may open the animal's full profile. */
+export const canView = (user: User, ownerId: string) => user.role === 'doctor' || ownerId === user.id;
+
+/** Ear-tag lookup across all owners; callers apply canView(). */
+export async function findCattleByTag(db: SQLiteDatabase, tag: string) {
+  const row = await db.getFirstAsync<JoinedRow>(`${SELECT_CATTLE} WHERE c.tag_number = ?`, tag.trim());
+  return row ? fromRow(row) : null;
 }
 
 export function listHealthRecords(db: SQLiteDatabase, cattleId: string) {

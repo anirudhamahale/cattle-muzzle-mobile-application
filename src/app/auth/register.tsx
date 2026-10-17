@@ -2,6 +2,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { CircleAlert, MapPin, ShieldCheck, UserRound, UserRoundPlus } from 'lucide-react-native';
 import { useState } from 'react';
 
+import { RoleSelector } from '@/components/role-selector';
 import { Button } from '@/components/ui/button';
 import { ChipGroup } from '@/components/ui/chip-group';
 import { Banner, Screen, Section } from '@/components/ui/layout';
@@ -9,10 +10,6 @@ import { TextField } from '@/components/ui/text-field';
 import type { OwnerType, Role } from '@/db/types';
 import { useAuth } from '@/lib/auth';
 
-const ROLES = [
-  { value: 'owner' as const, label: 'Cattle owner' },
-  { value: 'doctor' as const, label: 'Veterinary doctor' },
-];
 const OWNER_TYPES = [
   { value: 'farmer' as const, label: 'Independent farmer' },
   { value: 'gaushala' as const, label: 'Gaushala' },
@@ -22,7 +19,7 @@ type Errors = Partial<Record<'name' | 'phone' | 'password' | 'confirm' | 'org' |
 
 export default function Register() {
   const params = useLocalSearchParams<{ role?: Role }>();
-  const { signUp } = useAuth();
+  const { register } = useAuth();
   const [role, setRole] = useState<Role>(params.role === 'doctor' ? 'doctor' : 'owner');
   const [ownerType, setOwnerType] = useState<OwnerType>('farmer');
   const [name, setName] = useState('');
@@ -59,7 +56,7 @@ export default function Register() {
     if (Object.keys(e).length) return;
     setBusy(true);
     try {
-      await signUp({
+      await register({
         role,
         owner_type: isDoctor ? null : ownerType,
         name,
@@ -80,11 +77,11 @@ export default function Register() {
 
   return (
     <Screen edges={[]}>
-      <ChipGroup label="I am a" options={ROLES} value={role} onChange={setRole} />
+      <RoleSelector label="SIGN UP AS" value={role} onChange={setRole} />
 
-      <Section title={isDoctor ? 'Doctor details' : 'Owner details'} icon={UserRound}>
+      <Section title={isDoctor ? 'Doctor details' : 'Your details'} icon={UserRound}>
         {!isDoctor && (
-          <ChipGroup label="Owner type" options={OWNER_TYPES} value={ownerType} onChange={setOwnerType} required />
+          <ChipGroup label="I am a" options={OWNER_TYPES} value={ownerType} onChange={setOwnerType} required />
         )}
         <TextField label="Full name" value={name} onChangeText={setName} error={errors.name} required autoComplete="name" />
         {isGaushala && (
